@@ -47,8 +47,9 @@ export default {
       item.done = !item.done;
     },
     addTodo() {
+      const id = this.todos.length === 0 ? 0 : this.todos[this.todos.length - 1].id + 1;
       this.todos.push({
-        id: this.todos.length + 1,
+        id: id,
         title: this.inputFormTitle,
         done: false,
       })
