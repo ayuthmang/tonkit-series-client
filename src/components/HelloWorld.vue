@@ -2,22 +2,38 @@
   <div>
     <h2>Todo list</h2>
     <span>
-      <input type="text" v-model="inputFormTitle" v-on:keyup.enter="addTodo">
-      <button v-on:click="addTodo">Add todo</button>
+      <label>Title</label>
+      <input type="text" v-model="inputFormTitle" v-on:keyup.enter="createTodo">
+      <label>Description:</label>
+      <input type="text" v-model="inputFormDescription" v-on:keyup.enter="createTodo">
+      <label>Create by</label>
+      <input type="text" v-model="inputFormCreatedBy" v-on:keyup.enter="createTodo">
+      <button v-on:click="createTodo">Add todo</button>
     </span>
     <hr>
     <ol>
       <li v-for="todo in todos" v-bind:key="todo.id">
-        <input type="checkbox" v-bind:checked="todo.done" v-on:change="toggle(todo)">
-        <span v-if="!todo.done">{{ todo.title}}</span>
-        <del v-else>{{ todo.title }}</del>
-        <button v-on:click="deleteTodo(todo)">delete</button>
+        <input
+          type="checkbox"
+          v-bind:checked="todo.done"
+          v-on:change="updateTodoToApi(todo)"
+        >
+        <span
+          v-if="!todo.done"
+        >title: {{ todo.title}}, description: {{ todo.description }}, created by {{ todo.createdBy }}</span>
+        <del
+          v-else
+        >title: {{ todo.title}}, description: {{ todo.description }}, created by {{ todo.createdBy }}</del>
+        <button v-on:click="deleteTodoToApi(todo)">delete</button>
       </li>
     </ol>
+    <button v-on:click="getTodoFromApi">Get Todo List</button>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "HelloWorld",
   data() {
@@ -39,29 +55,67 @@ export default {
         }
       ],
       inputFormTitle: null,
-      inputFormDescription: null
+      inputFormDescription: null,
+      inputFormCreatedBy: null
     };
   },
   methods: {
-    toggle(item) {
+    toggleTodoAndSendToApi(item) {
       item.done = !item.done;
     },
-    addTodo() {
-      const id = this.todos.length === 0 ? 0 : this.todos[this.todos.length - 1].id + 1;
-      this.todos.push({
-        id: id,
+    createTodo() {
+      const body = {
         title: this.inputFormTitle,
-        done: false,
-      })
-      // eslint-disable-next-line
-      console.log(this.todos.length);
-      this.inputFormTitle = '';
+        description: this.inputFormDescription,
+        createdBy: this.inputFormCreatedBy,
+        done: false
+      };
+      axios
+        .post("http://localhost:3000/todo", body)
+        .then(res => res.data)
+        .then(res => {
+          // eslint-disable-next-line
+          console.log(res);
+          this.getTodoFromApi();
+        });
+      this.inputFormTitle = "";
+      this.inputFormDescription = "";
+      this.inputFormCreatedBy = "";
     },
-    deleteTodo(item) {
-      this.todos = this.todos.filter(function (element) {
-        return item.id !== element.id
-      })
+    getTodoFromApi() {
+      axios
+        .get("http://localhost:3000/todo")
+        .then(res => res.data)
+        .then(res => {
+          // eslint-disable-next-line
+          console.log(res);
+          this.todos = res;
+        });
+    },
+    updateTodoToApi(todo) {
+      todo.done = !todo.done;
+      axios
+        .put(`http://localhost:3000/todo/${todo.id}`, todo)
+        .then(res => res.data)
+        .then(res => {
+          // eslint-disable-next-line
+          console.log(res);
+          this.getTodoFromApi()
+        });
+    },
+    deleteTodoToApi(item) {
+      axios
+        .delete(`http://localhost:3000/todo/${item.id}`)
+        .then(res => res.data)
+        .then(res => {
+          // eslint-disable-next-line
+          console.log(res);
+          this.getTodoFromApi();
+        });
     }
+  },
+  mounted() {
+    this.getTodoFromApi();
   }
 };
 </script>
