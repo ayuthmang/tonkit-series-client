@@ -1,58 +1,70 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <h2>Todo list</h2>
+    <span>
+      <input type="text" v-model="inputFormTitle" v-on:keyup.enter="addTodo">
+      <button v-on:click="addTodo">Add todo</button>
+    </span>
+    <hr>
+    <ol>
+      <li v-for="todo in todos" v-bind:key="todo.id">
+        <input type="checkbox" v-bind:checked="todo.done" v-on:change="toggle(todo)">
+        <span v-if="!todo.done">{{ todo.title}}</span>
+        <del v-else>{{ todo.title }}</del>
+        <button v-on:click="deleteTodo(todo)">delete</button>
+      </li>
+    </ol>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  name: "HelloWorld",
+  data() {
+    return {
+      todos: [
+        {
+          id: 0,
+          title: "Play video games",
+          description: "Drop an exam and go play video games",
+          done: false,
+          createdBy: "5809610347"
+        },
+        {
+          id: 1,
+          title: "Learn vue js",
+          description: "Learn vue js is so easy.",
+          done: true,
+          createdBy: "5809610347"
+        }
+      ],
+      inputFormTitle: null,
+      inputFormDescription: null
+    };
+  },
+  methods: {
+    toggle(item) {
+      item.done = !item.done;
+    },
+    addTodo() {
+      this.todos.push({
+        id: this.todos.length + 1,
+        title: this.inputFormTitle,
+        done: false,
+      })
+      // eslint-disable-next-line
+      console.log(this.todos.length);
+      this.inputFormTitle = '';
+    },
+    deleteTodo(item) {
+      this.todos = this.todos.filter(function (element) {
+        return item.id !== element.id
+      })
+    }
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+<style>
 </style>
